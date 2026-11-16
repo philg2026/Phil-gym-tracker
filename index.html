@@ -20,5 +20,8 @@ function exportHistory(){download('phil-gym-history.json',JSON.stringify(history
 function exportCSV(){let rows=[['Date','Workout','Exercise','Target','Weight kg','Sets completed','Notes']];history.forEach(h=>h.items.forEach(e=>rows.push([new Date(h.date).toLocaleDateString(),h.day,e.name,e.target,e.weight,e.sets,h.notes])));download('phil-gym-history.csv',rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('
 '),'text/csv')}
 function clearHistory(){if(confirm('Permanently clear saved workout history on this device?')){history=[];persist();renderHistory()}}
-restore();render();
+window.addEventListener('DOMContentLoaded', function() {
+  restore();
+  render();
+});
 </script></body></html>

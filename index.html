@@ -1,27 +1,140 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#102d3a"><title>Phil's Gym Tracker</title><style>
-:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#183443;background:#f3f6f7}*{box-sizing:border-box}body{margin:0}header{background:#102d3a;color:white;padding:24px 18px 20px}main{max-width:680px;margin:auto;padding:15px 14px 70px}.eyebrow{color:#9bd5c6;font-size:12px;font-weight:750;letter-spacing:1.4px;text-transform:uppercase}h1{font-size:26px;margin:5px 0}h2{font-size:19px;margin:0 0 8px}p{line-height:1.5}.sub{color:#c4d6de;font-size:14px;margin:4px 0}.card{background:white;border-radius:17px;padding:16px;margin:13px 0;box-shadow:0 2px 12px #0d30400d}.tabs{display:flex;gap:8px}.tabs button{flex:1}button{border:0;border-radius:11px;padding:12px 14px;font-weight:700;font-size:15px;cursor:pointer;background:#e6edf0;color:#1d4354}button.active,button.primary{background:#087a65;color:white}button.secondary{background:#e6edf0}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #e5a453}.progress{height:9px;background:#e6edf0;border-radius:10px;overflow:hidden}.progress div{height:100%;background:#087a65;transition:width .2s}.small{font-size:13px;color:#5c727d}.exercise{overflow:hidden}.exercise h3{font-size:18px;margin:0}.exercise svg{display:block;width:100%;max-height:200px;margin:10px auto}.meta{font-size:13px;color:#526d79;margin:5px 0}.tip{background:#f1f6f6;border-left:3px solid #087a65;padding:10px 12px;border-radius:6px;font-size:14px;line-height:1.5}.controls{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-top:13px}.field{flex:1;min-width:110px}label{display:block;font-size:12px;font-weight:700;color:#58707b;margin-bottom:5px}input[type=number],textarea{width:100%;padding:11px;border:1px solid #bacbd0;border-radius:10px;font:inherit;background:white}textarea{min-height:72px}.sets{display:flex;gap:9px}.set{display:flex;align-items:center;gap:5px;background:#f0f5f5;padding:9px;border-radius:9px;font-size:13px;font-weight:700}.set input{width:20px;height:20px;accent-color:#087a65}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.warn{background:#fff5e7;border-left:4px solid #d28b2b;padding:12px;border-radius:8px;font-size:14px}.historyItem{padding:12px 0;border-bottom:1px solid #e2e9ec;font-size:14px}footer{font-size:12px;color:#6a7f88;text-align:center;margin:25px 0}.hidden{display:none}.tiny{font-size:12px;color:#647d87}.inline{display:inline-block}a{color:#087a65}@media print{header,button,.tabs,.sets,.historySection{display:none!important}body{background:white}.card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}}
-</style></head><body><header><div class="eyebrow">OFFLINE WORKOUT COMPANION</div><h1>Phil's Gym Tracker 💪</h1><p class="sub">Two beginner full-body workouts • Simple instructions • Saved on this device</p></header><main><div class="card"><div class="tabs"><button id="tabA" onclick="switchDay('A')">Workout A</button><button id="tabB" onclick="switchDay('B')">Workout B</button></div><p class="small">Start with 5–7 minutes of easy walking or cycling. Rest 60–90 seconds between sets.</p><div class="row"><strong id="count">0 of 12 sets</strong><span class="small" id="workoutLabel">Workout A</span></div><div class="progress" aria-label="Workout progress"><div id="bar" style="width:0%"></div></div></div><div id="list"></div><div class="card"><h2>Finish your session</h2><label for="notes">Notes / how your back felt</label><textarea id="notes" placeholder="e.g. Felt comfortable, leg press 20 kg was easy..."></textarea><p><button class="primary" onclick="finish()">✓ Save completed workout</button></p><div id="saveMsg" role="status" class="small"></div></div><section class="card historySection"><h2>Workout history</h2><p class="small">Saved locally in this browser on this device. Back it up with Export.</p><div id="history"></div><div class="controls"><button onclick="exportHistory()">Export history (.json)</button><button onclick="exportCSV()">Export CSV</button><button onclick="clearHistory()">Clear history</button></div></section><div class="warn"><strong>Start gently:</strong> Choose weights that leave 3–4 reps in reserve for the first fortnight. Avoid painful movements. If your familiar running-related back pain appears, stop that exercise and reassess. Seek professional assessment for persistent or worsening pain, or new neurological symptoms.</div><footer>Works without internet once the HTML file is saved. Diagrams are simplified position guides, not detailed technique videos. Your workout data stays on this device unless you export it.</footer></main><script>
-const PROGRAM={"A": [["Leg press", "2 \u00d7 10\u201312", "Legs and glutes", "Keep your back against the pad. Lower only until your pelvis stays stable.", "legpress"], ["Chest press", "2 \u00d7 10\u201312", "Chest and triceps", "Adjust handles to chest height. Push smoothly without locking elbows.", "chest"], ["Seated row", "2 \u00d7 10\u201312", "Upper back and biceps", "Sit tall. Pull handles toward ribs without rocking backwards.", "row"], ["Seated leg curl", "2 \u00d7 10\u201312", "Hamstrings", "Align knee with machine pivot and curl slowly.", "curl"], ["Dumbbell biceps curl", "2 \u00d7 10\u201312", "Biceps", "Elbows by sides. Avoid swinging the weights.", "biceps"], ["Dead bug", "2 \u00d7 8 each side", "Core", "Keep trunk steady; extend opposite arm and leg without arching.", "deadbug"]], "B": [["Goblet squat to bench", "2 \u00d7 8\u201310", "Legs and glutes", "Sit back toward a bench, comfortable depth. Start bodyweight.", "squat"], ["Lat pulldown", "2 \u00d7 10\u201312", "Back and biceps", "Pull bar toward upper chest, elbows down; no leaning back excessively.", "pulldown"], ["Machine shoulder press", "2 \u00d7 10\u201312", "Shoulders", "Adjust seat; press overhead in comfortable range.", "shoulder"], ["Glute bridge", "2 \u00d7 12", "Glutes", "Feet flat; squeeze glutes to raise hips without arching back.", "bridge"], ["Cable triceps pushdown", "2 \u00d7 10\u201312", "Triceps", "Elbows tucked; straighten arms without moving shoulders.", "triceps"], ["Bird dog", "2 \u00d7 8 each side", "Core stability", "On hands and knees, extend opposite arm and leg; hips level.", "birddog"]]};const PICTURES={"legpress": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M65 139L105 99L138 113L174 91L215 91\"/><path d=\"M215 56V135\" stroke=\"#829ba6\"/><path d=\"M65 139L38 113\"/><circle cx=\"105\" cy=\"76\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M105 90L105 99\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "chest": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M115 80V133M115 133L90 152M115 133L140 152M115 93L160 93L190 77M115 93L160 111L190 111\"/><circle cx=\"115\" cy=\"62\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M195 62V131\" stroke=\"#829ba6\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "row": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M117 85V130M117 130L90 150M117 130L145 150M117 94L153 102L182 90\"/><circle cx=\"117\" cy=\"66\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M185 60V126\" stroke=\"#829ba6\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "curl": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M130 82V130M130 130L110 151M130 130L151 151M130 91L112 110L129 94M130 91L150 110L168 93\"/><circle cx=\"130\" cy=\"62\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M118 94H139M158 92H179\" stroke=\"#e68b43\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "pulldown": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M135 76V129M135 129L110 150M135 129L160 150M135 87L95 70L86 38M135 87L176 70L185 38\"/><circle cx=\"135\" cy=\"58\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M65 31H205\" stroke=\"#e68b43\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "shoulder": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M135 78V131M135 131L111 151M135 131L159 151M135 87L105 59L105 31M135 87L165 59L165 31\"/><circle cx=\"135\" cy=\"59\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M90 28H120M150 28H180\" stroke=\"#e68b43\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "squat": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M135 74L126 112L163 123L190 150M126 112L97 145M135 84L110 101M135 84L160 102\"/><circle cx=\"135\" cy=\"54\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M83 151H207\" stroke=\"#829ba6\" stroke-width=\"4\"/><path d=\"M123 100H149\" stroke=\"#e68b43\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "biceps": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M135 75V125M135 125L113 151M135 125L157 151M135 85L112 105L128 91M135 85L158 105L173 91\"/><circle cx=\"135\" cy=\"56\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M118 91H139M164 91H185\" stroke=\"#e68b43\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "triceps": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M135 75V125M135 125L113 151M135 125L157 151M135 85L159 100L160 132\"/><circle cx=\"135\" cy=\"56\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M153 133H173\" stroke=\"#e68b43\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "bridge": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M65 145L98 130L138 102L178 125L202 145\"/><circle cx=\"52\" cy=\"140\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M100 131L138 102\" stroke=\"#e68b43\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "deadbug": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M125 128L155 110L192 112M155 110L172 76M155 110L112 91\"/><circle cx=\"108\" cy=\"130\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M172 76L190 54M112 91L91 66\" stroke=\"#e68b43\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>", "birddog": "<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Simplified exercise position illustration\"><rect width=\"320\" height=\"180\" rx=\"16\" fill=\"#eef4f5\"/><g fill=\"none\" stroke=\"#29485c\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M93 135L128 107L173 112L213 90M128 107L128 148M173 112L194 147\"/><circle cx=\"81\" cy=\"136\" r=\"12\" fill=\"#f8c9a5\" stroke=\"#29485c\" stroke-width=\"4\"/><path d=\"M213 90L241 71\" stroke=\"#e68b43\"/></g><path d=\"M20 154H300\" stroke=\"#a4b8bf\" stroke-width=\"3\"/><text x=\"160\" y=\"174\" text-anchor=\"middle\" font-size=\"10\" fill=\"#607782\">Illustrative position \u2014 follow instructions</text></svg>"};
-let day='A';let current={A:{},B:{}};let history=[];
-const KEY='phil_gym_tracker_v1';
-function restore(){try{let s=JSON.parse(localStorage.getItem(KEY)||'{}');current=s.current||current;history=s.history||[];day=s.day||'A'}catch(e){}}
-function persist(){try{localStorage.setItem(KEY,JSON.stringify({current,history,day}));}catch(e){document.getElementById('saveMsg').textContent='Storage unavailable here. Use Export CSV to save your log.'}}
-function switchDay(d){captureNotes();day=d;persist();render()}
-function captureNotes(){let n=document.getElementById('notes');if(n)current[day].notes=n.value}
-function updateWeight(i,v){current[day][i]??={};current[day][i].weight=v;persist()}
-function updateSet(i,j,v){current[day][i]??={};current[day][i]['s'+j]=v;persist();progress()}
-function progress(){let n=PROGRAM[day].reduce((s,e,i)=>s+(current[day][i]?.s0?1:0)+(current[day][i]?.s1?1:0),0);document.getElementById('count').textContent=n+' of 12 sets';document.getElementById('bar').style.width=(n/12*100)+'%'}
-function render(){document.getElementById('tabA').classList.toggle('active',day==='A');document.getElementById('tabB').classList.toggle('active',day==='B');document.getElementById('workoutLabel').textContent='Workout '+day;document.getElementById('list').innerHTML=PROGRAM[day].map((e,i)=>{let d=current[day][i]||{};return `<article class="card exercise"><div class="row"><h3>${i+1}. ${e[0]}</h3><span class="small">${e[1]}</span></div><p class="meta">${e[2]}</p>${PICTURES[e[4]]}<div class="tip">${e[3]}</div><div class="controls"><div class="field"><label for="w${i}">Weight (kg; blank for bodyweight)</label><input id="w${i}" type="number" min="0" max="500" step="0.5" inputmode="decimal" value="${d.weight??''}" oninput="updateWeight(${i},this.value)"></div><div class="sets"><label class="set"><input type="checkbox" ${d.s0?'checked':''} onchange="updateSet(${i},0,this.checked)">Set 1</label><label class="set"><input type="checkbox" ${d.s1?'checked':''} onchange="updateSet(${i},1,this.checked)">Set 2</label></div></div></article>`}).join('');document.getElementById('notes').value=current[day].notes||'';progress();renderHistory()}
-function finish(){captureNotes();let items=PROGRAM[day].map((e,i)=>({name:e[0],target:e[1],weight:current[day][i]?.weight??'',sets:Number(!!current[day][i]?.s0)+Number(!!current[day][i]?.s1)}));let count=items.reduce((s,x)=>s+x.sets,0);if(count===0&&!confirm('No sets checked. Save this session anyway?'))return;history.unshift({date:new Date().toISOString(),day,items,notes:current[day].notes||''});current[day]={};persist();render();document.getElementById('saveMsg').textContent='Session saved locally. Export your history occasionally for backup.';window.scrollTo({top:0,behavior:'smooth'})}
-function renderHistory(){document.getElementById('history').innerHTML=history.length?history.slice(0,20).map(h=>`<div class="historyItem"><strong>${new Date(h.date).toLocaleDateString()} — Workout ${h.day}</strong><br>${h.items.reduce((n,e)=>n+e.sets,0)} sets • ${h.items.filter(x=>x.weight).map(x=>x.name+': '+x.weight+'kg').join(', ')||'No weights logged'}${h.notes?'<br>Notes: '+escapeHtml(h.notes):''}</div>`).join(''):'<p class="small">No sessions saved yet.</p>'}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function download(name,body,type){let blob=new Blob([body],{type});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
-function exportHistory(){download('phil-gym-history.json',JSON.stringify(history,null,2),'application/json')}
-function exportCSV(){let rows=[['Date','Workout','Exercise','Target','Weight kg','Sets completed','Notes']];history.forEach(h=>h.items.forEach(e=>rows.push([new Date(h.date).toLocaleDateString(),h.day,e.name,e.target,e.weight,e.sets,h.notes])));download('phil-gym-history.csv',rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('
-'),'text/csv')}
-function clearHistory(){if(confirm('Permanently clear saved workout history on this device?')){history=[];persist();renderHistory()}}
-window.addEventListener('DOMContentLoaded', function() {
-  restore();
-  render();
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12313b">
+<title>Phil's Gym Tracker</title>
+<style>
+:root {font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#17303a;background:#eef3f4}
+*{box-sizing:border-box}body{margin:0;padding:0 0 60px}header{background:#12313b;color:white;padding:25px 18px}header h1{margin:0 0 5px;font-size:27px}header p{margin:0;color:#c2dedc;font-size:14px}
+main{max-width:700px;margin:auto;padding:14px}.panel{background:white;border-radius:17px;padding:17px;margin-bottom:14px;box-shadow:0 2px 10px #183a3a12}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}button{font:inherit;cursor:pointer;touch-action:manipulation;border:0;border-radius:11px;padding:12px 13px;background:#e6edef;color:#17303a;font-weight:650}button.active,.primary{background:#087f6d;color:white}button:focus-visible{outline:3px solid #df9c36}.small{font-size:13px;color:#63777c}.progress{height:9px;background:#e5eeee;border-radius:9px;overflow:hidden;margin-top:8px}.bar{height:100%;background:#07876d;width:0%;transition:width .15s}
+.exercise{border:1px solid #e0e8e8;border-radius:14px;padding:13px;margin:12px 0}.exhead{display:flex;gap:12px;align-items:center}.picture{flex:none;background:#eaf3f1;border-radius:13px;width:66px;height:66px;display:flex;align-items:center;justify-content:center;font-size:36px}.exhead h3{margin:0 0 3px;font-size:17px}.exhead p{margin:0;color:#64767b;font-size:13px}.hint{font-size:14px;line-height:1.5;margin:11px 0}
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}label{font-size:13px;font-weight:600}input[type=number],textarea{width:100%;font:inherit;padding:10px;border:1px solid #c6d4d6;border-radius:9px;margin-top:5px}textarea{min-height:72px;resize:vertical}.sets{display:flex;gap:18px;margin-top:12px;flex-wrap:wrap}.sets label{display:flex;align-items:center;gap:7px;font-size:15px}.sets input{width:20px;height:20px;accent-color:#087f6d}
+.actions{display:flex;flex-wrap:wrap;gap:8px}.actions button{flex:1;min-width:125px}#historyList{font-size:14px}#historyList article{padding:10px 0;border-bottom:1px solid #e3ebeb}#status{font-size:14px;color:#087f6d;margin-top:8px}details{font-size:14px}summary{cursor:pointer;font-weight:650}footer{font-size:12px;color:#61777a;text-align:center;padding:8px 18px}
+</style>
+</head>
+<body>
+<header><h1>Phil's Gym Tracker 💪</h1><p>Two beginner full-body workouts • Runs in Safari • Saves on this device</p></header>
+<main>
+<section class="panel"><div class="tabs"><button type="button" id="tabA" class="active">Workout A</button><button type="button" id="tabB">Workout B</button></div><p class="small">Warm up 5–7 minutes. Rest 60–90 seconds between sets. Start light and leave 3–4 reps in reserve.</p><strong id="progressText">0 of 12 sets</strong><div class="progress"><div class="bar" id="progressBar"></div></div></section>
+<section class="panel" id="exerciseList" aria-label="Workout exercises"></section>
+<section class="panel"><h2>Finish your session</h2><label for="notes">Notes / how your back felt</label><textarea id="notes" placeholder="e.g. Back comfortable; leg press 20 kg felt easy"></textarea><p><button type="button" class="primary" id="saveSession">✓ Save completed workout</button></p><div id="status" role="status"></div></section>
+<section class="panel"><h2>Workout history</h2><div id="historyList">No sessions saved yet.</div><div class="actions" style="margin-top:15px"><button type="button" id="exportJSON">Backup (.json)</button><button type="button" id="exportCSV">Export CSV</button></div><details style="margin-top:16px"><summary>Restore a backup</summary><p class="small">Restoring replaces the workout history saved in this browser.</p><input type="file" id="restoreFile" accept=".json,application/json"></details></section>
+<section class="panel"><h2>Getting started</h2><p class="small">Alternate A and B, ideally twice weekly with at least one day between. If a movement triggers your usual back pain or sharp knee pain, stop and adjust. Ask a gym instructor to check machine setup on your first visit.</p><p class="small">Your entries are stored in this browser, not on GitHub. Export backups regularly. Private browsing, clearing website data or switching browsers can remove locally saved records.</p></section>
+</main><footer>Made for Phil • Offline requires additional PWA caching setup; this single page needs no external scripts or images.</footer>
+<script>
+'use strict';
+const EXERCISES = {"A": [["Leg press", "10–12", "Legs and glutes", "Sit with your back fully against the pad. Push through your feet, then lower slowly. Do not let your lower back round.", "🦵"], ["Chest press", "10–12", "Chest and triceps", "Adjust seat so handles are around chest height. Push forward and return under control.", "🏋️"], ["Seated row", "10–12", "Upper back and biceps", "Sit tall, pull handles toward your ribs, squeeze shoulder blades, then return slowly.", "🚣"], ["Seated leg curl", "10–12", "Hamstrings", "Adjust machine to fit your legs. Bend knees against the pad without jerking.", "🦵"], ["Dumbbell biceps curl", "10–12", "Biceps", "Stand tall, elbows close to sides. Curl slowly without swinging your body.", "💪"], ["Dead bug", "8 each side", "Core", "Lie on your back with arms up and knees bent. Slowly extend opposite arm and leg while keeping your back comfortable.", "🧘"]], "B": [["Goblet squat to bench", "8–10", "Legs and glutes", "Stand in front of bench. Lower toward it, then stand tall. Start bodyweight if needed; avoid knee pain.", "🪑"], ["Lat pulldown", "10–12", "Back and biceps", "Sit tall, grip bar, pull to upper chest and return slowly. Never pull behind your neck.", "🏋️"], ["Shoulder press machine", "10–12", "Shoulders", "Adjust seat and keep back supported. Press up through comfortable range.", "🙌"], ["Glute bridge", "12", "Glutes", "Lie on back, knees bent. Push through heels to raise hips without arching lower back.", "🌉"], ["Cable triceps pushdown", "10–12", "Triceps", "Keep elbows by your sides. Push handle down, then return slowly.", "💪"], ["Bird dog", "8 each side", "Core and balance", "On hands and knees, extend opposite arm and leg, keeping hips level.", "🐦"]]};
+const STORAGE_KEY = 'phil-gym-v3';
+const $ = id => document.getElementById(id);
+let data = {day:'A',drafts:{A:{},B:{}},notes:{A:'',B:''},sessions:[]};
+function loadData() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (stored && stored.drafts && stored.sessions) data = stored;
+  } catch (error) { console.warn('Could not load saved data',error); }
+}
+function persist() {
+  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); }
+  catch(error) { $('status').textContent='Storage unavailable: export your workout after training.'; }
+}
+function draftFor(index) {
+  if (!data.drafts[data.day][index]) data.drafts[data.day][index]={weight:'',reps:'',s1:false,s2:false};
+  return data.drafts[data.day][index];
+}
+function saveNotes() { data.notes[data.day]=$('notes').value; persist(); }
+function changeDay(next) { saveNotes(); data.day=next; persist(); render(); }
+function render() {
+  $('tabA').classList.toggle('active',data.day==='A');
+  $('tabB').classList.toggle('active',data.day==='B');
+  $('notes').value=data.notes[data.day] || '';
+  $('status').textContent='';
+  const container=$('exerciseList');
+  container.replaceChildren();
+  EXERCISES[data.day].forEach((exercise,index)=>{
+    const item=draftFor(index);
+    const card=document.createElement('div'); card.className='exercise';
+    const head=document.createElement('div'); head.className='exhead';
+    const picture=document.createElement('div');picture.className='picture';picture.textContent=exercise[4];
+    const info=document.createElement('div');
+    const title=document.createElement('h3');title.textContent=(index+1)+'. '+exercise[0];
+    const subtitle=document.createElement('p');subtitle.textContent='2 sets × '+exercise[1]+' reps • '+exercise[2];
+    info.append(title,subtitle);head.append(picture,info);
+    const hint=document.createElement('p');hint.className='hint';hint.textContent=exercise[3];
+    const inputs=document.createElement('div');inputs.className='inputs';
+    [['weight','Weight (kg)'],['reps','Reps per set']].forEach(([key,labelText])=>{
+      const wrap=document.createElement('label');wrap.textContent=labelText;
+      const input=document.createElement('input');input.type='number';input.min='0';input.step=key==='weight'?'0.5':'1';input.inputMode='decimal';
+      input.value=item[key] || '';input.placeholder=key==='weight'?'Bodyweight / kg':exercise[1];
+      input.addEventListener('input',()=>{item[key]=input.value;persist();});wrap.append(input);inputs.append(wrap);
+    });
+    const sets=document.createElement('div');sets.className='sets';
+    ['s1','s2'].forEach((key,n)=>{
+      const label=document.createElement('label');const check=document.createElement('input');check.type='checkbox';check.checked=!!item[key];
+      check.addEventListener('change',()=>{item[key]=check.checked;persist();updateProgress();});
+      label.append(check,document.createTextNode('Set '+(n+1)));sets.append(label);
+    });
+    card.append(head,hint,inputs,sets);container.append(card);
+  });
+  updateProgress();renderHistory();
+}
+function updateProgress() {
+  let count=0;
+  EXERCISES[data.day].forEach((exercise,index)=>{const item=draftFor(index);count+=Number(!!item.s1)+Number(!!item.s2);});
+  $('progressText').textContent=count+' of 12 sets';
+  $('progressBar').style.width=(count/12*100)+'%';
+}
+function saveSession() {
+  saveNotes();
+  const entries=EXERCISES[data.day].map((exercise,index)=>({name:exercise[0],target:exercise[1],...draftFor(index)}));
+  const completed=entries.reduce((n,e)=>n+Number(!!e.s1)+Number(!!e.s2),0);
+  if (!completed && !confirm('No sets checked. Save this session anyway?')) return;
+  data.sessions.unshift({date:new Date().toISOString(),workout:data.day,entries:entries,notes:data.notes[data.day]});
+  data.drafts[data.day]={};data.notes[data.day]='';persist();render();
+  $('status').textContent='Workout saved! Export a backup occasionally.';
+}
+function renderHistory() {
+  const el=$('historyList');el.replaceChildren();
+  if (!data.sessions.length){el.textContent='No sessions saved yet.';return;}
+  data.sessions.forEach(session=>{
+    const article=document.createElement('article');
+    const date=new Date(session.date).toLocaleDateString('en-GB');
+    const sets=session.entries.reduce((n,e)=>n+Number(!!e.s1)+Number(!!e.s2),0);
+    const heading=document.createElement('strong');heading.textContent=date+' • Workout '+session.workout+' • '+sets+'/12 sets';
+    const note=document.createElement('div');note.className='small';note.textContent=session.notes || 'No notes';
+    article.append(heading,note);el.append(article);
+  });
+}
+function downloadFile(name,text,mime){
+  const blob=new Blob([text],{type:mime});const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');link.href=url;link.download=name;document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+function csvCell(value){return '"'+String(value == null ? '' : value).replace(/"/g,'""')+'"';}
+function exportCSV(){
+  const rows=[['Date','Workout','Exercise','Weight kg','Reps','Sets completed','Notes']];
+  data.sessions.forEach(session=>session.entries.forEach(entry=>{
+    rows.push([session.date,session.workout,entry.name,entry.weight,entry.reps,Number(!!entry.s1)+Number(!!entry.s2),session.notes]);
+  }));
+  downloadFile('phil-gym-history.csv',rows.map(row=>row.map(csvCell).join(',')).join('\n'),'text/csv');
+}
+$('tabA').addEventListener('click',()=>changeDay('A'));
+$('tabB').addEventListener('click',()=>changeDay('B'));
+$('notes').addEventListener('input',saveNotes);
+$('saveSession').addEventListener('click',saveSession);
+$('exportJSON').addEventListener('click',()=>downloadFile('phil-gym-backup.json',JSON.stringify(data,null,2),'application/json'));
+$('exportCSV').addEventListener('click',exportCSV);
+$('restoreFile').addEventListener('change',async event=>{
+  const file=event.target.files[0];if(!file)return;
+  try {
+    const parsed=JSON.parse(await file.text());
+    if(!parsed.drafts || !Array.isArray(parsed.sessions))throw new Error('Invalid backup');
+    if(confirm('Replace current saved workout data with this backup?')){data=parsed;persist();render();}
+  } catch(error){alert('Could not restore: '+error.message);}
+  event.target.value='';
 });
-</script></body></html>
+loadData();render();
+</script>
+</body></html>

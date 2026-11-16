@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#12313b">
-<title>Phil's Gym Tracker — Dashboard</title>
+<title>Phil's Gym Tracker — Illustrated</title>
 <style>
 :root {font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#17303a;background:#eef3f4}
 *{box-sizing:border-box}body{margin:0;padding:0 0 60px}header{background:#12313b;color:white;padding:25px 18px}header h1{margin:0 0 5px;font-size:27px}header p{margin:0;color:#c2dedc;font-size:14px}
@@ -24,6 +24,17 @@ main{max-width:700px;margin:auto;padding:14px}.panel{background:white;border-rad
 .navline{display:flex;gap:9px;align-items:center;justify-content:space-between;margin-bottom:12px}
 .navline h2{margin:0;font-size:21px}.navline button{padding:9px 13px}
 @media(max-width:370px){.homecards{gap:8px}.homecard{padding:12px}}
+
+.visual-toggle{margin:12px 0 6px;width:100%;text-align:left;background:#e9f3f1;color:#075c50;display:flex;align-items:center;justify-content:space-between}
+.visual-guide{border:1px solid #d7e8e4;border-radius:13px;padding:10px;margin:8px 0 12px;background:#f7fbfa}
+.pose-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pose-panel{min-width:0;background:white;border:1px solid #e2e9e9;border-radius:10px;overflow:hidden;text-align:center}
+.pose-panel strong{display:block;font-size:12px;padding:8px 0 0;color:#086b5d;letter-spacing:.6px}
+.pose-panel svg{width:100%;height:auto;display:block}
+.guide-tip{font-size:12px;line-height:1.5;color:#455f64;margin:8px 0 0}
+.visual-guide[hidden]{display:none!important}
+.visual-toggle .chevron{font-size:17px}
+@media(max-width:350px){.pose-grid{gap:4px}.visual-guide{padding:5px}}
 </style>
 </head>
 <body>
@@ -47,7 +58,7 @@ main{max-width:700px;margin:auto;padding:14px}.panel{background:white;border-rad
 <div id="historyView" hidden><div class="navline"><button type="button" class="homeBtn">← Home</button><h2>Your progress</h2></div>
 <section class="panel"><h2>Workout history</h2><div id="historyList">No sessions saved yet.</div><div class="actions" style="margin-top:15px"><button type="button" id="exportJSON">Backup (.json)</button><button type="button" id="exportCSV">Export CSV</button></div><details style="margin-top:16px"><summary>Restore a backup</summary><p class="small">Restoring replaces the workout history saved in this browser.</p><input type="file" id="restoreFile" accept=".json,application/json"></details></section></div>
 <section class="panel"><h2>Getting started</h2><p class="small">Alternate A and B, ideally twice weekly with at least one day between. If a movement triggers your usual back pain or sharp knee pain, stop and adjust. Ask a gym instructor to check machine setup on your first visit.</p><p class="small">Your entries are stored in this browser, not on GitHub. Export backups regularly. Private browsing, clearing website data or switching browsers can remove locally saved records.</p></section>
-</main><footer>Made for Phil • Offline requires additional PWA caching setup; this single page needs no external scripts or images.</footer>
+</main><footer>Made for Phil • Illustrations are built into this file and work without separate image downloads. Full offline access still requires caching setup.</footer>
 <script>
 'use strict';
 const EXERCISES = {"A": [["Leg press", "10–12", "Legs and glutes", "Sit with your back fully against the pad. Push through your feet, then lower slowly. Do not let your lower back round.", "🦵"], ["Chest press", "10–12", "Chest and triceps", "Adjust seat so handles are around chest height. Push forward and return under control.", "🏋️"], ["Seated row", "10–12", "Upper back and biceps", "Sit tall, pull handles toward your ribs, squeeze shoulder blades, then return slowly.", "🚣"], ["Seated leg curl", "10–12", "Hamstrings", "Adjust machine to fit your legs. Bend knees against the pad without jerking.", "🦵"], ["Dumbbell biceps curl", "10–12", "Biceps", "Stand tall, elbows close to sides. Curl slowly without swinging your body.", "💪"], ["Dead bug", "8 each side", "Core", "Lie on your back with arms up and knees bent. Slowly extend opposite arm and leg while keeping your back comfortable.", "🧘"]], "B": [["Goblet squat to bench", "8–10", "Legs and glutes", "Stand in front of bench. Lower toward it, then stand tall. Start bodyweight if needed; avoid knee pain.", "🪑"], ["Lat pulldown", "10–12", "Back and biceps", "Sit tall, grip bar, pull to upper chest and return slowly. Never pull behind your neck.", "🏋️"], ["Shoulder press machine", "10–12", "Shoulders", "Adjust seat and keep back supported. Press up through comfortable range.", "🙌"], ["Glute bridge", "12", "Glutes", "Lie on back, knees bent. Push through heels to raise hips without arching lower back.", "🌉"], ["Cable triceps pushdown", "10–12", "Triceps", "Keep elbows by your sides. Push handle down, then return slowly.", "💪"], ["Bird dog", "8 each side", "Core and balance", "On hands and knees, extend opposite arm and leg, keeping hips level.", "🐦"]]};
@@ -83,6 +94,80 @@ function updateHome(){
  const count=data.sessions.length;
  $('homeSummary').textContent=count ? count+' completed session'+(count===1?'':'s')+' saved. Last workout: '+new Date(data.sessions[0].date).toLocaleDateString('en-GB')+' (Workout '+data.sessions[0].workout+').' : 'No completed sessions yet. Pick Workout A or B to begin.';
 }
+
+// Self-contained instructional vector diagrams. No remote images or network requests.
+// Coordinates are schematic: adjust gym machines to your body and ask staff to check setup.
+const POSES={
+ A:[
+  // Leg press: supported reclined torso, knees bend -> extend toward footplate
+  {base:'legpress',a:[[65,52],[77,69],[89,84],[105,97],[120,78],[132,58]],b:[[65,52],[77,69],[92,82],[116,68],[130,56],[132,48]],arm:[[77,69],[88,78]],tip:'Keep your lower back against the pad. Do not lock your knees.'},
+  // Chest press: seated, arms bent -> straight
+  {base:'chest',a:[[57,43],[59,65],[59,91],[59,120]],b:[[57,43],[59,65],[59,91],[59,120]],arm:[[59,67],[79,74],[91,62]],arm2:[[59,67],[96,65],[126,65]],tip:'Set handles at chest height. Keep shoulders down.'},
+  // Row: seated torso with arms extended -> pulled back
+  {base:'row',a:[[69,43],[70,65],[70,94],[91,110]],b:[[69,43],[70,65],[70,94],[91,110]],arm:[[70,67],[102,72],[131,71]],arm2:[[70,67],[84,78],[93,71]],tip:'Pull towards lower ribs; avoid leaning backwards.'},
+  // Seated curl: bent knee movement
+  {base:'curl',a:[[64,40],[65,63],[65,89],[97,90],[118,110]],b:[[64,40],[65,63],[65,89],[97,90],[115,75]],arm:[[65,66],[80,84]],tip:'Keep hips still and move slowly through a comfortable range.'},
+  // Biceps curl: standing elbow stays in place
+  {base:'stand',a:[[74,27],[74,55],[74,92],[64,130]],b:[[74,27],[74,55],[74,92],[64,130]],arm:[[74,57],[91,77],[98,106]],arm2:[[74,57],[91,77],[94,49]],tip:'Keep elbows close to your ribs; avoid swinging.'},
+  // Dead bug supine, opposite limbs extend
+  {base:'floor',a:[[46,91],[69,91],[91,91],[107,68],[128,70]],b:[[46,91],[69,91],[91,91],[117,105],[143,104]],arm:[[69,91],[73,58]],arm2:[[69,91],[39,76]],tip:'Move opposite arm and leg slowly; keep your trunk steady.'}
+ ],
+ B:[
+  {base:'squat',a:[[74,27],[74,53],[74,83],[65,126]],b:[[74,38],[84,63],[96,91],[117,116]],arm:[[74,57],[86,63],[87,55]],arm2:[[84,63],[94,70],[94,60]],tip:'Lower towards the bench, then stand. Keep heels grounded.'},
+  {base:'pulldown',a:[[76,44],[77,68],[77,93],[99,110]],b:[[76,44],[77,68],[77,93],[99,110]],arm:[[77,66],[53,44],[42,16]],arm2:[[77,66],[57,52],[49,48]],tip:'Pull the bar towards upper chest, not behind your neck.'},
+  {base:'shoulder',a:[[67,45],[69,68],[69,96],[86,117]],b:[[67,45],[69,68],[69,96],[86,117]],arm:[[69,68],[94,69],[98,44]],arm2:[[69,68],[90,42],[90,12]],tip:'Keep your back supported and avoid arching.'},
+  {base:'floor',a:[[43,95],[65,95],[93,95],[116,118],[136,118]],b:[[43,73],[65,68],[93,89],[116,118],[136,118]],arm:[[65,95],[75,118]],arm2:[[65,68],[75,112]],tip:'Lift hips by squeezing glutes, not arching your back.'},
+  {base:'cable',a:[[70,27],[70,54],[70,92],[60,130]],b:[[70,27],[70,54],[70,92],[60,130]],arm:[[70,57],[91,72],[94,57]],arm2:[[70,57],[91,72],[91,107]],tip:'Keep upper arms still and elbows by your sides.'},
+  {base:'floor',a:[[50,73],[80,75],[104,76],[130,99]],b:[[50,73],[80,75],[104,76],[146,65]],arm:[[80,75],[61,101]],arm2:[[80,75],[41,56]],tip:'Extend opposite arm and leg; keep your hips level.'}
+ ]
+};
+function svgLine(points,stroke='#1c6171',width=7){
+ return '<polyline points="'+points.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="'+stroke+'" stroke-width="'+width+'" stroke-linecap="round" stroke-linejoin="round"/>';
+}
+function diagram(day,index,phase){
+ const p=POSES[day][index],pos=phase===0?p.a:p.b;
+ const machine={
+ legpress:'<path d="M24 103 L44 78 L67 96 M30 111 L76 111 M141 26 L158 42 M141 26 L141 77"/>',
+ chest:'<path d="M43 124 L81 124 M47 92 L47 121 M42 91 L75 91 M131 34 L131 118 M118 64 L144 64"/>',
+ row:'<path d="M40 117 L103 117 M57 97 L57 115 M57 97 L86 97 M141 35 L141 120 M127 72 L145 72"/>',
+ curl:'<path d="M46 88 L84 88 M48 88 L48 126 M48 126 L90 126 M123 63 L123 121 M108 111 L136 111"/>',
+ stand:'<path d="M27 133 L146 133"/>',
+ floor:'<path d="M16 124 L159 124"/>',
+ squat:'<path d="M105 112 L143 112 M109 112 L109 129 M105 129 L150 129"/>',
+ pulldown:'<path d="M28 13 L144 13 M135 13 L135 130 M51 102 L101 102 M60 102 L60 125 M44 27 L99 27"/>',
+ shoulder:'<path d="M42 95 L91 95 M47 95 L47 124 M42 124 L102 124 M130 23 L130 130"/>',
+ cable:'<path d="M126 15 L126 132 M117 15 L137 15 M126 15 L126 49 M109 50 L144 50"/>'
+ }[p.base];
+ const isFloor=p.base==='floor';
+ const head=isFloor?[pos[0][0]-11,pos[0][1]-3]:[pos[0][0],pos[0][1]-12];
+ const body=svgLine(pos.slice(0,3));
+ const legs=svgLine(pos.slice(2));
+ const arm=svgLine(phase===0?p.arm:(p.arm2||p.arm),'#2b8794',6);
+ const mat=isFloor?'<rect x="16" y="119" width="143" height="7" rx="3" fill="#b8ded8"/>':'';
+ const dumbbell=(p.base==='stand')?'<path d="M'+(phase===0?'90 108':'86 50')+' h20 m-19 -8 v16 m18 -16 v16" stroke="#52606e" stroke-width="4"/>':'';
+ const arrow=phase===1?'<path d="M150 35 l-9 -8 m9 8 l-10 5" stroke="#e79d3d" stroke-width="3" fill="none"/>':'';
+ return '<svg viewBox="0 0 175 145" role="img" aria-label="'+(phase===0?'Start':'Finish')+' position for '+EXERCISES[day][index][0]+'"><rect width="175" height="145" fill="#fff"/><g fill="none" stroke="#9ab4b8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">'+machine+'</g>'+mat+'<g>'+legs+body+arm+'</g><circle cx="'+head[0]+'" cy="'+head[1]+'" r="10" fill="#f2c8a4" stroke="#1c6171" stroke-width="2"/>'+dumbbell+arrow+'</svg>';
+}
+function createGuide(day,index){
+ const guide=document.createElement('div');guide.className='visual-guide';guide.hidden=true;
+ const panels=document.createElement('div');panels.className='pose-grid';
+ ['START','FINISH'].forEach((name,phase)=>{
+  const panel=document.createElement('div');panel.className='pose-panel';
+  panel.innerHTML='<strong>'+name+'</strong>'+diagram(day,index,phase);
+  panels.append(panel);
+ });
+ const tip=document.createElement('p');tip.className='guide-tip';tip.textContent='✓ '+POSES[day][index].tip+' • Illustrations are simplified guides; machine designs vary.';
+ guide.append(panels,tip);
+ const toggle=document.createElement('button');toggle.type='button';toggle.className='visual-toggle';
+ toggle.setAttribute('aria-expanded','false');toggle.textContent='👀 Show start & finish illustrations  ▾';
+ toggle.addEventListener('click',()=>{
+  guide.hidden=!guide.hidden;
+  toggle.setAttribute('aria-expanded',String(!guide.hidden));
+  toggle.textContent=guide.hidden?'👀 Show start & finish illustrations  ▾':'Hide illustrations  ▴';
+ });
+ return [toggle,guide];
+}
+
 function render() {
   $('tabA').classList.toggle('active',data.day==='A');
   $('tabB').classList.toggle('active',data.day==='B');
@@ -113,7 +198,8 @@ function render() {
       check.addEventListener('change',()=>{item[key]=check.checked;persist();updateProgress();});
       label.append(check,document.createTextNode('Set '+(n+1)));sets.append(label);
     });
-    card.append(head,hint,inputs,sets);container.append(card);
+    const [toggle,guide]=createGuide(data.day,index);
+    card.append(head,toggle,guide,hint,inputs,sets);container.append(card);
   });
   updateProgress();renderHistory();
 }

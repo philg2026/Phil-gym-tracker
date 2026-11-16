@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#12313b">
-<title>Phil's Gym Tracker</title>
+<title>Phil's Gym Tracker — Dashboard</title>
 <style>
 :root {font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#17303a;background:#eef3f4}
 *{box-sizing:border-box}body{margin:0;padding:0 0 60px}header{background:#12313b;color:white;padding:25px 18px}header h1{margin:0 0 5px;font-size:27px}header p{margin:0;color:#c2dedc;font-size:14px}
@@ -13,21 +13,45 @@ main{max-width:700px;margin:auto;padding:14px}.panel{background:white;border-rad
 .exercise{border:1px solid #e0e8e8;border-radius:14px;padding:13px;margin:12px 0}.exhead{display:flex;gap:12px;align-items:center}.picture{flex:none;background:#eaf3f1;border-radius:13px;width:66px;height:66px;display:flex;align-items:center;justify-content:center;font-size:36px}.exhead h3{margin:0 0 3px;font-size:17px}.exhead p{margin:0;color:#64767b;font-size:13px}.hint{font-size:14px;line-height:1.5;margin:11px 0}
 .inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}label{font-size:13px;font-weight:600}input[type=number],textarea{width:100%;font:inherit;padding:10px;border:1px solid #c6d4d6;border-radius:9px;margin-top:5px}textarea{min-height:72px;resize:vertical}.sets{display:flex;gap:18px;margin-top:12px;flex-wrap:wrap}.sets label{display:flex;align-items:center;gap:7px;font-size:15px}.sets input{width:20px;height:20px;accent-color:#087f6d}
 .actions{display:flex;flex-wrap:wrap;gap:8px}.actions button{flex:1;min-width:125px}#historyList{font-size:14px}#historyList article{padding:10px 0;border-bottom:1px solid #e3ebeb}#status{font-size:14px;color:#087f6d;margin-top:8px}details{font-size:14px}summary{cursor:pointer;font-weight:650}footer{font-size:12px;color:#61777a;text-align:center;padding:8px 18px}
+
+[hidden]{display:none!important}
+.homehero{background:#12313b;color:#fff;border-radius:17px;padding:23px;margin-bottom:14px}
+.homehero h2{margin:7px 0;font-size:26px}.homehero p{color:#c7e1df;margin:0}
+.homecards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.homecard{text-align:left;background:#fff;box-shadow:0 2px 10px #183a3a12;min-height:125px;padding:17px;border:1px solid #dce8e7}
+.homecard strong{display:block;font-size:19px;margin:8px 0}.homecard span{display:block;font-size:13px;color:#60747a;font-weight:400}
+.homecard.wide{grid-column:1/-1;min-height:85px}
+.navline{display:flex;gap:9px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.navline h2{margin:0;font-size:21px}.navline button{padding:9px 13px}
+@media(max-width:370px){.homecards{gap:8px}.homecard{padding:12px}}
 </style>
 </head>
 <body>
 <header><h1>Phil's Gym Tracker 💪</h1><p>Two beginner full-body workouts • Runs in Safari • Saves on this device</p></header>
 <main>
+<div id="homeView">
+  <div class="homehero"><div class="small" style="color:#a8d4cd;font-weight:700;letter-spacing:1px">YOUR TRAINING DASHBOARD</div><h2>Ready to train? 💪</h2><p>Build strength • Support running • Feel fitter for Krav Maga</p></div>
+  <div class="homecards">
+    <button type="button" class="homecard" id="openA"><span style="font-size:28px">🏋️</span><strong>Workout A</strong><span>Full body • 6 exercises</span></button>
+    <button type="button" class="homecard" id="openB"><span style="font-size:28px">💪</span><strong>Workout B</strong><span>Full body • 6 exercises</span></button>
+    <button type="button" class="homecard wide" id="openHistory"><strong>📈 Your progress</strong><span>Saved sessions, weights and workout history</span></button>
+  </div>
+  <section class="panel"><h2 style="margin-top:0">Your training</h2><p id="homeSummary" class="small">Your completed sessions will appear here.</p><p class="small">Start with two strength sessions per week, with recovery between them. Warm up for 5–7 minutes and begin with light weights.</p></section>
+</div>
+<div id="workoutView" hidden>
+  <div class="navline"><button type="button" class="homeBtn">← Home</button><h2 id="workoutHeading">Workout A</h2></div>
 <section class="panel"><div class="tabs"><button type="button" id="tabA" class="active">Workout A</button><button type="button" id="tabB">Workout B</button></div><p class="small">Warm up 5–7 minutes. Rest 60–90 seconds between sets. Start light and leave 3–4 reps in reserve.</p><strong id="progressText">0 of 12 sets</strong><div class="progress"><div class="bar" id="progressBar"></div></div></section>
 <section class="panel" id="exerciseList" aria-label="Workout exercises"></section>
 <section class="panel"><h2>Finish your session</h2><label for="notes">Notes / how your back felt</label><textarea id="notes" placeholder="e.g. Back comfortable; leg press 20 kg felt easy"></textarea><p><button type="button" class="primary" id="saveSession">✓ Save completed workout</button></p><div id="status" role="status"></div></section>
-<section class="panel"><h2>Workout history</h2><div id="historyList">No sessions saved yet.</div><div class="actions" style="margin-top:15px"><button type="button" id="exportJSON">Backup (.json)</button><button type="button" id="exportCSV">Export CSV</button></div><details style="margin-top:16px"><summary>Restore a backup</summary><p class="small">Restoring replaces the workout history saved in this browser.</p><input type="file" id="restoreFile" accept=".json,application/json"></details></section>
+</div>
+<div id="historyView" hidden><div class="navline"><button type="button" class="homeBtn">← Home</button><h2>Your progress</h2></div>
+<section class="panel"><h2>Workout history</h2><div id="historyList">No sessions saved yet.</div><div class="actions" style="margin-top:15px"><button type="button" id="exportJSON">Backup (.json)</button><button type="button" id="exportCSV">Export CSV</button></div><details style="margin-top:16px"><summary>Restore a backup</summary><p class="small">Restoring replaces the workout history saved in this browser.</p><input type="file" id="restoreFile" accept=".json,application/json"></details></section></div>
 <section class="panel"><h2>Getting started</h2><p class="small">Alternate A and B, ideally twice weekly with at least one day between. If a movement triggers your usual back pain or sharp knee pain, stop and adjust. Ask a gym instructor to check machine setup on your first visit.</p><p class="small">Your entries are stored in this browser, not on GitHub. Export backups regularly. Private browsing, clearing website data or switching browsers can remove locally saved records.</p></section>
 </main><footer>Made for Phil • Offline requires additional PWA caching setup; this single page needs no external scripts or images.</footer>
 <script>
 'use strict';
 const EXERCISES = {"A": [["Leg press", "10–12", "Legs and glutes", "Sit with your back fully against the pad. Push through your feet, then lower slowly. Do not let your lower back round.", "🦵"], ["Chest press", "10–12", "Chest and triceps", "Adjust seat so handles are around chest height. Push forward and return under control.", "🏋️"], ["Seated row", "10–12", "Upper back and biceps", "Sit tall, pull handles toward your ribs, squeeze shoulder blades, then return slowly.", "🚣"], ["Seated leg curl", "10–12", "Hamstrings", "Adjust machine to fit your legs. Bend knees against the pad without jerking.", "🦵"], ["Dumbbell biceps curl", "10–12", "Biceps", "Stand tall, elbows close to sides. Curl slowly without swinging your body.", "💪"], ["Dead bug", "8 each side", "Core", "Lie on your back with arms up and knees bent. Slowly extend opposite arm and leg while keeping your back comfortable.", "🧘"]], "B": [["Goblet squat to bench", "8–10", "Legs and glutes", "Stand in front of bench. Lower toward it, then stand tall. Start bodyweight if needed; avoid knee pain.", "🪑"], ["Lat pulldown", "10–12", "Back and biceps", "Sit tall, grip bar, pull to upper chest and return slowly. Never pull behind your neck.", "🏋️"], ["Shoulder press machine", "10–12", "Shoulders", "Adjust seat and keep back supported. Press up through comfortable range.", "🙌"], ["Glute bridge", "12", "Glutes", "Lie on back, knees bent. Push through heels to raise hips without arching lower back.", "🌉"], ["Cable triceps pushdown", "10–12", "Triceps", "Keep elbows by your sides. Push handle down, then return slowly.", "💪"], ["Bird dog", "8 each side", "Core and balance", "On hands and knees, extend opposite arm and leg, keeping hips level.", "🐦"]]};
-const STORAGE_KEY = 'phil-gym-v3';
+const STORAGE_KEY = 'phil-gym-v3'; // Retain saved workouts from Version 3
 const $ = id => document.getElementById(id);
 let data = {day:'A',drafts:{A:{},B:{}},notes:{A:'',B:''},sessions:[]};
 function loadData() {
@@ -45,7 +69,20 @@ function draftFor(index) {
   return data.drafts[data.day][index];
 }
 function saveNotes() { data.notes[data.day]=$('notes').value; persist(); }
-function changeDay(next) { saveNotes(); data.day=next; persist(); render(); }
+function changeDay(next) { saveNotes(); data.day=next; persist(); render(); showView('workout'); }
+function showView(view) {
+  $('homeView').hidden=view!=='home';
+  $('workoutView').hidden=view!=='workout';
+  $('historyView').hidden=view!=='history';
+  if(view==='workout') $('workoutHeading').textContent='Workout '+data.day;
+  if(view==='home') updateHome();
+  if(view==='history') renderHistory();
+  window.scrollTo(0,0);
+}
+function updateHome(){
+ const count=data.sessions.length;
+ $('homeSummary').textContent=count ? count+' completed session'+(count===1?'':'s')+' saved. Last workout: '+new Date(data.sessions[0].date).toLocaleDateString('en-GB')+' (Workout '+data.sessions[0].workout+').' : 'No completed sessions yet. Pick Workout A or B to begin.';
+}
 function render() {
   $('tabA').classList.toggle('active',data.day==='A');
   $('tabB').classList.toggle('active',data.day==='B');
@@ -120,6 +157,10 @@ function exportCSV(){
   }));
   downloadFile('phil-gym-history.csv',rows.map(row=>row.map(csvCell).join(',')).join('\n'),'text/csv');
 }
+$('openA').addEventListener('click',()=>{data.day='A';persist();render();showView('workout');});
+$('openB').addEventListener('click',()=>{data.day='B';persist();render();showView('workout');});
+$('openHistory').addEventListener('click',()=>showView('history'));
+document.querySelectorAll('.homeBtn').forEach(btn=>btn.addEventListener('click',()=>{saveNotes();showView('home');}));
 $('tabA').addEventListener('click',()=>changeDay('A'));
 $('tabB').addEventListener('click',()=>changeDay('B'));
 $('notes').addEventListener('input',saveNotes);
@@ -135,6 +176,6 @@ $('restoreFile').addEventListener('change',async event=>{
   } catch(error){alert('Could not restore: '+error.message);}
   event.target.value='';
 });
-loadData();render();
+loadData();render();showView('home');
 </script>
 </body></html>
